@@ -2,6 +2,7 @@ import express from "express"
 import cors from "cors"
 import cookieParser from "cookie-parser"
 import {ApiResponse} from "./utils/ApiResponse.js"
+import userRouter from "./routes/user.routes.js"
 const app = express()
 
 app.use(cors({
@@ -14,11 +15,9 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+app.use("/api/user",userRouter)
 app.use((err, req, res, next) => {
-    res.status(err.statusCode || 500).json({
-      success: false,
-      message: err.message || 'Internal Server Error',
-    },new ApiResponse(err.statusCode || 500,null,err.message || 'Internal Server Error'));
+    res.status(err.statusCode || 500).json(new ApiResponse(err.statusCode || 500,error.data || null,err.message || 'Internal Server Error'));
   });
 
 export { app }
