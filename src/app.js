@@ -14,6 +14,10 @@ app.use(express.urlencoded({ extended: true, limit: "16kb" }))
 app.use(express.static("public"))
 app.use(cookieParser())
 
+
+import meetingRoute from "./routes/meetingRoutes.js"
+app.use("/meeting", meetingRoute);
+
 app.use((err, req, res, next) => {
     res.status(err.statusCode || 500).json({
       success: false,
