@@ -1,28 +1,38 @@
-import express from "express"
-import cors from "cors"
-import cookieParser from "cookie-parser"
-import {ApiResponse} from "./utils/ApiResponse.js"
-const app = express()
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import { ApiResponse } from "./utils/ApiResponse.js";
+import userRouter from "./routes/user.routes.js";
+import dotenv from "dotenv";
 
+dotenv.config();
+
+const app = express();
+
+// Enable Cross-Origin Resource Sharing (CORS)
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
-    credentials: true
-}))
+  origin: process.env.CORS_ORIGIN,
+  credentials: true
+}));
 
-app.use(express.json({ limit: "16kb" }))
-app.use(express.urlencoded({ extended: true, limit: "16kb" }))
-app.use(express.static("public"))
-app.use(cookieParser())
+// Parse JSON request bodies
+app.use(express.json({ limit: "16kb" }));
 
+// Parse URL-encoded request bodies
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 
-import meetingRoute from "./routes/meetingRoutes.js"
-app.use("/meeting", meetingRoute);
+// Serve static files from the "public" directory
+app.use(express.static("public"));
 
+// Parse cookies
+app.use(cookieParser());
+
+// Mount the userRouter middleware at "/api/user" path
+app.use("/api/user", userRouter);
+
+// Error handling middleware
 app.use((err, req, res, next) => {
-    res.status(err.statusCode || 500).json({
-      success: false,
-      message: err.message || 'Internal Server Error',
-    },new ApiResponse(err.statusCode || 500,null,err.message || 'Internal Server Error'));
-  });
+  res.status(err.statusCode || 500).json(new ApiResponse(err.statusCode || 500, err.data || null, err.message || 'Internal Server Error'));
+});
 
-export { app }
+export { app };

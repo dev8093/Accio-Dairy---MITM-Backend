@@ -1,67 +1,50 @@
-// require ('dotenv').config({path:'./env'})
-import dotenv from "dotenv";
-import {app} from  "./app.js";
+import dotenv from "dotenv"; // Module for handling environment variables
+import { app } from "./app.js"; // Custom app module
+import mongoose from "mongoose"; // MongoDB library
+import connectDb from "./db/index.js"; // Custom database connection module
 
-import mongoose from "mongoose";
-// import { DB_NAME } from "./constants.js";
-import connectDb from "./db/index.js";
+// Import necessary modules
 
+// Load environment variables from .env file
 dotenv.config({
     path: './env'
 });
 
+// Connect to the database
 connectDb()
-.then(()=>{
-    app.listen(process.env.PORT || 8000, ()=>{
-        console.log(`Server is running atr Port : ${process.env.PORT}`)
+    .then(() => {
+        // Start the server
+        app.listen(process.env.PORT || 8000, () => {
+            console.log(`Server is running at Port : ${process.env.PORT}`);
+        });
     })
-})
-.catch((err)=>{
-        console.log("MONGO db Connection failed ",err)
-        app.on("error",(error)=>{
+    .catch((err) => {
+        console.log("MONGO db Connection failed ", err);
+        app.on("error", (error) => {
             console.error("Server error:", error);
-            // process.exit(1);
             throw error;
-        })
-})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        });
+    });
 
 /** 
- * one approach to connect with our dataBase
-import express from "express"
-const app = express();
-( async () => {
-    try {
-        await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
-        app.on("error",(error)=>{
-            console.error("Database connection error:", error);
-            // process.exit(1);
-            throw error;
-        })
-        
-        app.listen(process.env.PORT)
-        
-    } catch(error){
-        console.error("Error connecting to the database:", error);
-        // process.exit(1);
-        throw error;
-    }
-    
-})()
-*/
+ * Alternative approach to connect with the database
+ * 
+ * import express from "express"
+ * const app = express();
+ * ( async () => {
+ *     try {
+ *         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}`)
+ *         app.on("error",(error)=>{
+ *             console.error("Database connection error:", error);
+ *             throw error;
+ *         })
+ *         
+ *         app.listen(process.env.PORT)
+ *         
+ *     } catch(error){
+ *         console.error("Error connecting to the database:", error);
+ *         throw error;
+ *     }
+ *     
+ * })()
+ */
