@@ -1,6 +1,14 @@
 import nodemailer from "nodemailer" 
 import { ApiError } from "./ApiError.js"
 
+/**
+ * Sends an email using the provided email, subject, and HTML content.
+ * @param {string} email - The recipient's email address.
+ * @param {string} subject - The subject of the email.
+ * @param {string} htmlContent - The HTML content of the email.
+ * @returns {Promise<Object>} - A promise that resolves to an object containing the sent email and a success message.
+ * @throws {ApiError} - If there is an error sending the email.
+ */
 const sendEmail = async (email, subject, htmlContent) => {
     try {
         const transporter = nodemailer.createTransport({
