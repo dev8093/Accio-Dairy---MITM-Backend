@@ -3,6 +3,8 @@ import cors from "cors"
 import cookieParser from "cookie-parser"
 import {ApiResponse} from "./utils/ApiResponse.js"
 import userRouter from "./routes/user.routes.js"
+import dotenv from "dotenv";
+dotenv.config();
 const app = express()
 
 app.use(cors({
@@ -17,7 +19,7 @@ app.use(cookieParser())
 
 app.use("/api/user",userRouter)
 app.use((err, req, res, next) => {
-    res.status(err.statusCode || 500).json(new ApiResponse(err.statusCode || 500,error.data || null,err.message || 'Internal Server Error'));
+    res.status(err.statusCode || 500).json(new ApiResponse(err.statusCode || 500,err.data || null,err.message || 'Internal Server Error'));
   });
 
 export { app }

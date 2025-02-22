@@ -4,12 +4,14 @@ import {ApiResponse} from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import RefreshToken from "../models/refreshToken.model.js"
+import sendEmail from './../utils/sendEmail.js';
+
 
 export const signUp = async (req,res,next)=>{
     try {
         const {name,email,password}  = req.body
         if (
-            [fullName, email, password].some((field) => field?.trim() === "")
+            [name, email, password].some((field) => field?.trim() === "")
         ) {
             throw new ApiError(400, "All fields are required")
         }
@@ -26,8 +28,27 @@ export const signUp = async (req,res,next)=>{
             email,
             password
         })
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRATE, { expiresIn: "1h" });
+        const verificationLink = `${process.env.BASE_URL}/api/user/verify-email?token=${token}`;
+        const htmlContent = `
+            <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px; margin: auto; background-color: #f4f4f4;">
+                <div style="background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 2px 2px 10px rgba(0,0,0,0.1);">
+                    <h2 style="color: #333;">Welcome, ${name}!</h2>
+                    <p>Thank you for signing up. Please verify your email address to activate your account.</p>
+                    <a href="${verificationLink}" 
+                       style="display: inline-block; background-color: #28a745; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-size: 16px;">
+                        Verify Email
+                    </a>
+                    <p>If you didn’t request this, you can safely ignore this email.</p>
+                    <p>Best Regards,<br><strong>Your App Name</strong></p>
+                </div>
+            </div>
+        `;
+        await sendEmail(email, "Verify Your Email", `Click here to verify: ${verificationLink}`,htmlContent);
+
+    
         await user.save()
-        res.status(200).json(new ApiResponse(200,user,"user registered successfully"))
+        res.status(200).json(new ApiResponse(200,user,"user registered successfully. Check your email for verification link."))
     } catch (error) {
         next(error)
     }
@@ -69,9 +90,31 @@ if(!accessToken || !refreshToken){
    return res
             .status(200)
             .cookie("accessToken", accessToken, options)
-            .cookie("refreshToken", savedRefresToken, options)
-            .json(new ApiResponse(200, { user, accessToken, refreshToken:savedRefresToken }, "User logged in successfully"));
+            .cookie("refreshToken", refreshToken, options)
+            .json(new ApiResponse(200, { user, accessToken, refreshToken }, "User logged in successfully"));
     } catch (error) {
+        next(error)
+        
+    }
+}
+
+export const verifyEmail = async (req, res,next) => {
+    try {
+        const { token } = req.query;
+        if (!token) return res.status(400).json({ message: "Invalid token" });
+
+        const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRATE);
+        const user = await User.findOne({ email: decoded.email });
+
+        // if (!user) return res.status(404).json({ message: "User not found" });
+        if (!user) throw new ApiError(404,"User not found")
+
+        user.verified = true;
+        await user.save();
+
+        res.status(200).json(new ApiResponse(200,user,"Email verified successfully!"));
+    } catch (error) {
+        // res.status(400).json({ message: "Invalid or expired token" });
         next(error)
     }
 }

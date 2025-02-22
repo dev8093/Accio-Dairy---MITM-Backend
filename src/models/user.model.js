@@ -1,5 +1,6 @@
 import mongoose,{Schema} from "mongoose"
 import bcrypt from "bcrypt"
+import jwt from "jsonwebtoken"
 const userSchema = new Schema({
     name:{
         type:String,
@@ -19,6 +20,10 @@ const userSchema = new Schema({
         type: String,
         default: ''
     },
+    verified:{
+        type:Boolean,
+        default:false
+    }
 },{timestamps:true})
 
 userSchema.pre('save', async function (next) {
