@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { ApiResponse } from "./utils/ApiResponse.js";
 import userRouter from "./routes/user.routes.js";
 import dotenv from "dotenv";
+import meetingRouter from './routes/meeting.routes.js'
 
 dotenv.config();
 
@@ -29,6 +30,8 @@ app.use(cookieParser());
 
 // Mount the userRouter middleware at "/api/user" path
 app.use("/api/user", userRouter);
+
+app.use("/meeting", meetingRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
