@@ -1,19 +1,19 @@
-import mongoose,{Schema} from "mongoose"
+import mongoose, { Schema } from "mongoose"
 import bcrypt from "bcrypt"
 import jwt from "jsonwebtoken"
 const userSchema = new Schema({
-    name:{
-        type:String,
-        required:[true,"name is required"],
+    name: {
+        type: String,
+        required: [true, "name is required"],
     },
-    email:{
-        type:String,
-        required:[true,"email is required"],
-        unique:[true,"email should be unique"]
+    email: {
+        type: String,
+        required: [true, "email is required"],
+        unique: [true, "email should be unique"]
     },
-    password:{
-        type:String,
-        required:[true,"password is required"],
+    password: {
+        type: String,
+        required: [true, "password is required"],
 
     },
     profilePicture: {
@@ -24,14 +24,14 @@ const userSchema = new Schema({
         type:Boolean,
         default:false
     }
-},{timestamps:true})
+}, { timestamps: true })
 
 userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
-  
+
     this.password = await bcrypt.hash(this.password, 10);
     next();
-  });
+});
 
 userSchema.methods.isPasswordCorrect = async function(password){
     return await bcrypt.compare(password, this.password)
