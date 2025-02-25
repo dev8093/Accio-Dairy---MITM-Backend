@@ -1,24 +1,14 @@
-import express, { Router } from 'express'
+import { Router } from 'express'
 import { Meeting } from '../models/meeting.model.js';
+import { createMeeting, getMeetingById } from '../controllers/meeting.controller.js';
+import { authenticate } from '../middlewares/authenticate.middleware.js';
+
 const router = Router();
 
-// console.log("asds", router)
+router.use(authenticate)
 
-router.post("/create", async (req, res) => {
-    try {
-        const { title, description, creator } = req.body;
-        if (!title || !description || !creator) {
-            return res.status(400).json({ error: "All fields are required" })
-        }
-        const newMeeting = new Meeting({
-            title, description, creator
-        })
-
-        await newMeeting.save();
-        res.status(200).json({ message: "Meeting created successfully" })
-    } catch (error) {
-        console.log(error)
-    }
-})
+router.post("/", createMeeting);
+router.get("/:meetingId", getMeetingById); 
+// router.put("/:meetingId", )
 
 export default router
