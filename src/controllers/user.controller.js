@@ -133,7 +133,7 @@ export const verifyEmail = async (req, res, next) => {
 
         // Verify token and find user by email
         const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRATE);
-        const user = await User.findOne({ email: decoded.email });
+        const user = await User.findOne({ email: decoded.email }).select("-password");
 
         // Check if user exists
         if (!user) throw new ApiError(404, "User not found")
@@ -142,7 +142,7 @@ export const verifyEmail = async (req, res, next) => {
         user.verified = true;
         await user.save();
 
-        res.status(200).json(new ApiResponse(200, user, "Email verified successfully!"));
+        res.status(200).json(new ApiResponse(200,null /*user*/, "Email verified successfully!"));
     } catch (error) {
         next(error)
     }
@@ -194,18 +194,26 @@ export const refreshAccessToken = async (req, res, next) => {
     }
 };
 
-// Controller function for user logout
+
 export const logout = async (req, res, next) => {
     try {
-        // Delete refresh token for the user
-        await RefreshToken.findOneAndDelete({ user: req.user._id })
+        
+
+        if (req.logout) {
+            req.logout(function (err) {
+                if (err) return next(err);
+            });
+        }
+
+
+        await RefreshToken.findOneAndDelete({ user: req.user?._id })
 
         const options = {
             httpOnly: true,
             secure: true
         }
 
-        // Clear cookies and send response
+        
         return res.status(200).clearCookie("accessToken", options).clearCookie("refreshToken", options).json(
             new ApiResponse(200, {}, "User Logged Out Successfully")
         )
@@ -213,3 +221,42 @@ export const logout = async (req, res, next) => {
         next(error)
     }
 }
+
+export const checkAuth = async (req, res, next) => {
+    try {
+        if (!req.isAuthenticated && !req.user) {
+            throw new ApiError(401, "User is not authenticated");
+        }
+
+        res.status(200).json(new ApiResponse(200, req.user, "User is authenticated"));
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const updateProfile = async (req,res,next)=>{
+        const avatarLocalPath = req.files?.avatar[0]?.path;
+        
+    
+        try {
+        
+            if (!avatarLocalPath) {
+                throw new ApiError(400, "Avatar file is required")
+            }
+        
+            const avatar = await uploadOnCloudinary(avatarLocalPath)
+            // const coverImage = await uploadOnCloudinary(coverImageLocalPath)
+        
+            if (!avatar) {
+                throw new ApiError(400, "Avatar file is required")
+            }
+            const user = await User.findById(req.user._id)
+            user.profilePicture = avatar.url || ""
+            user.save({validateBeforeSave:false})
+            res.status(200).json(new ApiResponse(200, user, "Profile updated successfully"))
+        } catch (err) {
+            next(err)
+        }
+    
+    }
