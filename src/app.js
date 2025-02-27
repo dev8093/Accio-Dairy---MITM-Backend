@@ -6,8 +6,9 @@ import userRouter from "./routes/user.routes.js";
 import dotenv from "dotenv";
 import session from "express-session";
 import passport from "passport";
-import "./config/passport.config.js"; 
-import authRouter from './routes/auth.routes.js';
+import "./config/passport.config.js";
+import authRouter from "./routes/auth.routes.js";
+import meetingRouter from "./routes/meeting.routes.js";
 
 dotenv.config();
 
@@ -46,6 +47,8 @@ app.use(cookieParser());
 // Mount the userRouter middleware at "/api/user" path
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
+
+app.use("/meeting", meetingRouter);
 
 // Error handling middleware
 
