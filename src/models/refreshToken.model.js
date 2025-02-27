@@ -9,7 +9,7 @@ const refreshTokenSchema = new Schema({
         unique: [true, 'token should be unique']
     },
     user: {
-        type: Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: [true, 'User is required']
     },
