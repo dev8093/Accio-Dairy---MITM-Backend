@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const locationSchema = new mongoose.Schema({
+const venueSchema = new mongoose.Schema({
     latitude:{
         type:Number,
         required:[true,"Must include latitude"],
@@ -28,4 +28,4 @@ const locationSchema = new mongoose.Schema({
     }
 
 })
-export default mongoose.model("Location",locationSchema);
+export default mongoose.model("Venue",venueSchema);

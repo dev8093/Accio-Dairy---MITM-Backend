@@ -5,6 +5,8 @@ import { ApiResponse } from "./utils/ApiResponse.js";
 import userRouter from "./routes/user.routes.js";
 import dotenv from "dotenv";
 import meetingRouter from './routes/meeting.routes.js'
+import venueRouter from './routes/venue.routes.js'
+
 
 dotenv.config();
 
@@ -32,6 +34,8 @@ app.use(cookieParser());
 app.use("/api/user", userRouter);
 
 app.use("/meeting", meetingRouter);
+
+app.use("/api/venue",venueRouter);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
